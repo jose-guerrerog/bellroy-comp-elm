@@ -1,0 +1,69 @@
+---
+// src/pages/shop.astro
+import Layout from '../layouts/Layout.astro';
+import BellroyProductCard from '../components/BellroyProductCard.astro';
+
+const productIds = ['slim-sleeve', 'passport-cover', 'minimalist-set'];
+---
+
+<Layout title="Bellroy Shop | Wallets Collection">
+  <main>
+    <div class="container">
+      <h1>Wallets Collection</h1>
+      
+      <div class="product-grid">
+        {productIds.map(id => (
+          <div class="product-grid-cell">
+            <BellroyProductCard productId={id} className="product-grid-item" />
+          </div>
+        ))}
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<style>
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+  }
+  
+  h1 {
+    font-family: 'Apercu', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 2rem;
+    color: #183431;
+    margin-bottom: 2rem;
+    text-align: center;
+  }
+  
+  .product-grid {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 1px;
+    background-color: #f9f7f4;
+  }
+  
+  @media (min-width: 640px) {
+    .product-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .product-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  
+  .product-grid-cell {
+    height: 100%;
+    background-color: #f9f7f4;
+    display: flex;
+  }
+  
+  .product-grid-item {
+    flex: 1;
+    display: flex;
+  }
+</style>

@@ -1,0 +1,230 @@
+---
+// src/components/BellroyProductCard.astro
+import "../styles/product-card.css";
+
+// TypeScript definitions
+export interface Props {
+  productId: string;
+  className?: string;
+}
+
+interface Color {
+  id: string;
+  name: string;
+  hexCode: string;
+  inStock: boolean;
+  svgUrl?: string; // Path to color-specific SVG
+}
+
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  currency: string;
+  imageSrc: string;
+  colors: Color[];
+  badge: string | null;
+  isNew: boolean;
+  description?: string; // Optional short description
+}
+
+interface ProductMap {
+  [key: string]: Product;
+}
+
+const { productId, className = '' } = Astro.props;
+
+// Mock product data with TypeScript types and SVG paths
+const productData: ProductMap = {
+  'slim-sleeve': {
+    id: 'slim-sleeve',
+    name: 'Slim Sleeve',
+    price: 119.00,
+    currency: 'USD',
+    imageSrc: '/images/products/slim-sleeve-black.png',
+    colors: [
+      { 
+        id: 'black', 
+        name: 'Black', 
+        hexCode: '#000000', 
+        inStock: true,
+        svgUrl: '/images/products/slim-sleeve-black.png'
+      },
+      { 
+        id: 'brown', 
+        name: 'Brown', 
+        hexCode: '#8B4513', 
+        inStock: true,
+        svgUrl: '/images/products/slim-sleeve-brown.png'
+      },
+      { 
+        id: 'gray', 
+        name: 'Gray', 
+        hexCode: '#404040', 
+        inStock: true,
+        svgUrl: '/images/products/slim-sleeve-gray.png'
+      }
+    ],
+    badge: null,
+    isNew: false,
+    description: 'Billfold / 5 – 11 cards, folded bills'
+  },
+  'passport-cover': {
+    id: 'passport-cover',
+    name: 'Passport Cover – RFID safe',
+    price: 149.00,
+    currency: 'USD',
+    imageSrc: '/images/products/hide-seek-blue.png',
+    colors: [
+      { 
+        id: 'blue', 
+        name: 'blue', 
+        hexCode: '#1A2351', 
+        inStock: true,
+        svgUrl: '/images/products/hide-seek-blue.png'
+      },
+      { 
+        id: 'tan', 
+        name: 'Tan', 
+        hexCode: '#A0522D', 
+        inStock: true,
+        svgUrl: '/images/products/hide-seek-tan.png'
+      }
+    ],
+    badge: null,
+    isNew: false,
+    description: 'Passport holder / Passport, boarding pass, cards and bills'
+  },
+  'minimalist-set': {
+    id: 'minimalist-set',
+    name: 'Minimalist Set',
+    price: 149.00,
+    currency: 'USD',
+    imageSrc: '/images/products/zip-wallet-black.png',
+    colors: [
+      { 
+        id: 'black', 
+        name: 'Black', 
+        hexCode: '#000000', 
+        inStock: true,
+        svgUrl: '/images/products/zip-wallet-black.png'
+      },
+      { 
+        id: 'green', 
+        name: 'Green', 
+        hexCode: '#556B2F', 
+        inStock: true,
+        svgUrl: '/images/products/zip-wallet-green.png'
+      }
+    ],
+    badge: 'Value Set',
+    isNew: false,
+    description: 'Slim Sleeve + Key Cover'
+  }
+};
+
+// Attempt to get the product by ID
+let product: Product | undefined;
+let error: string | null = null;
+
+try {
+  product = productData[productId];
+  if (!product) {
+    error = `Product not found: ${productId}`;
+  }
+} catch (e) {
+  const err = e as Error;
+  error = err.message || 'Error loading product';
+}
+
+// Format price based on currency
+const formatPrice = (price: number, currency: string): string => {
+  switch (currency) {
+    case 'USD': return `$${price}`;
+    case 'EUR': return `€${price}`;
+    case 'GBP': return `£${price}`;
+    case 'AUD': return `A$${price}`;
+    default: return `${price} ${currency}`;
+  }
+};
+
+// Find the first available color (for pre-selecting)
+const firstAvailableColor = product?.colors?.find(color => color.inStock);
+const initialImageSrc = firstAvailableColor?.svgUrl || product?.imageSrc;
+---
+
+<div id={`product-card-${productId}`} class={className || "product-card-container"}>
+  {error ? (
+    <div class="product-card__error">{error}</div>
+  ) : !product ? (
+    <div class="product-card__loading">Loading product...</div>
+  ) : (
+    <div class="product-card">
+      <!-- Product image -->
+      <div class="product-card__image-container">
+        <a href={`/products/${product.id}`} class="product-card__image-link">
+          <img 
+            id={`product-image-${productId}`}
+            src={initialImageSrc}
+            alt={product.name} 
+            class="product-card__image"
+          />
+          
+          {(product.badge || product.isNew) && (
+            <div class={`product-card__badge ${product.isNew ? "product-card__badge--new" : ""}`}>
+              {product.badge || (product.isNew ? "New" : "")}
+            </div>
+          )}
+        </a>
+      </div>
+      
+      <!-- Product info -->
+      <div class="product-card__info">
+        <h3 class="product-card__name">
+          <a href={`/products/${product.id}`} class="product-card__name-link">
+            {product.name}
+          </a>
+        </h3>
+        
+        <div class="product-card__price-container">
+          <div class="product-card__price">{formatPrice(product.price, product.currency)}</div>
+          
+          {product.id === 'minimalist-set' && (
+            <div class="product-card__valued-at">Valued at $188</div>
+          )}
+        </div>
+        
+        {/* Color selection row */}
+        {product.colors && product.colors.length > 0 && (
+          <div class="product-card__colors">
+            {product.colors.map(color => (
+              <button 
+                class={`product-card__color-option ${
+                  !color.inStock ? "product-card__color-option--out-of-stock" : ""
+                } ${
+                  color.id === firstAvailableColor?.id ? "product-card__color-option--selected" : ""
+                }`}
+                style={`background-color: ${color.hexCode};`}
+                title={color.name}
+                aria-label={`${color.name} color${!color.inStock ? ' (out of stock)' : ''}`}
+                disabled={!color.inStock}
+                data-color-id={color.id}
+                data-svg-url={color.svgUrl}
+                data-product-id={productId}
+              >
+                <span class="sr-only">{color.name}</span>
+              </button>
+            ))}
+          </div>
+        )}
+        
+        {/* Product description */}
+        {product.description && (
+          <div class="product-card__description">
+            {product.description}
+          </div>
+        )}
+      </div>
+    </div>
+  )}
+</div>
