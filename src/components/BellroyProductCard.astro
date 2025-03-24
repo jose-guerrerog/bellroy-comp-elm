@@ -23,9 +23,7 @@ interface Product {
   currency: string;
   imageSrc: string;
   colors: Color[];
-  badge: string | null;
   isNew: boolean;
-  description?: string; // Optional short description
 }
 
 interface ProductMap {
@@ -65,13 +63,11 @@ const productData: ProductMap = {
         svgUrl: '/images/products/slim-sleeve-gray.png'
       }
     ],
-    badge: null,
-    isNew: false,
-    description: 'Billfold / 5 – 11 cards, folded bills'
+    isNew: false
   },
-  'passport-cover': {
-    id: 'passport-cover',
-    name: 'Passport Cover – RFID safe',
+  'hide-and-seek': {
+    id: 'hide-and-seek',
+    name: 'Hide & Seek',
     price: 149.00,
     currency: 'USD',
     imageSrc: '/images/products/hide-seek-blue.png',
@@ -91,13 +87,11 @@ const productData: ProductMap = {
         svgUrl: '/images/products/hide-seek-tan.png'
       }
     ],
-    badge: null,
-    isNew: false,
-    description: 'Passport holder / Passport, boarding pass, cards and bills'
+    isNew: false
   },
-  'minimalist-set': {
-    id: 'minimalist-set',
-    name: 'Minimalist Set',
+  'zip-wallet': {
+    id: 'zip-wallet',
+    name: 'Zip Wallet',
     price: 149.00,
     currency: 'USD',
     imageSrc: '/images/products/zip-wallet-black.png',
@@ -117,9 +111,7 @@ const productData: ProductMap = {
         svgUrl: '/images/products/zip-wallet-green.png'
       }
     ],
-    badge: 'Value Set',
-    isNew: false,
-    description: 'Slim Sleeve + Key Cover'
+    isNew: false
   }
 };
 
@@ -170,9 +162,9 @@ const initialImageSrc = firstAvailableColor?.svgUrl || product?.imageSrc;
             class="product-card__image"
           />
           
-          {(product.badge || product.isNew) && (
-            <div class={`product-card__badge ${product.isNew ? "product-card__badge--new" : ""}`}>
-              {product.badge || (product.isNew ? "New" : "")}
+          {product.isNew && (
+            <div class="product-card__badge product-card__badge--new">
+              New
             </div>
           )}
         </a>
@@ -188,10 +180,6 @@ const initialImageSrc = firstAvailableColor?.svgUrl || product?.imageSrc;
         
         <div class="product-card__price-container">
           <div class="product-card__price">{formatPrice(product.price, product.currency)}</div>
-          
-          {product.id === 'minimalist-set' && (
-            <div class="product-card__valued-at">Valued at $188</div>
-          )}
         </div>
         
         {/* Color selection row */}
@@ -215,13 +203,6 @@ const initialImageSrc = firstAvailableColor?.svgUrl || product?.imageSrc;
                 <span class="sr-only">{color.name}</span>
               </button>
             ))}
-          </div>
-        )}
-        
-        {/* Product description */}
-        {product.description && (
-          <div class="product-card__description">
-            {product.description}
           </div>
         )}
       </div>

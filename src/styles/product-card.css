@@ -7,7 +7,7 @@
   --color-accent: #e3745e;
   --color-light: #f9f7f4;
   --color-dark: #1c1c1c;
-  --color-gray-100: #f8f8f8; /* Very light gray for card backgrounds */
+  --color-gray-100: #f9f9f9; /* Very light gray for card backgrounds */
   --color-gray-200: #e0e0e0;
   --color-gray-300: #cccccc;
   --color-gray-400: #a0a0a0;
@@ -164,11 +164,6 @@
   color: var(--color-dark);
 }
 
-.product-card__valued-at {
-  font-size: var(--font-size-sm);
-  color: var(--color-gray-500);
-}
-
 /* Color options */
 .product-card__colors {
   display: flex;
@@ -201,16 +196,6 @@
 .product-card__color-option--out-of-stock {
   opacity: 0.4;
   cursor: not-allowed;
-}
-
-/* Product description */
-.product-card__description {
-  font-size: var(--font-size-sm);
-  color: var(--color-gray-500);
-  margin-top: var(--spacing-xs);
-  margin-top: auto; /* Push description to bottom */
-  padding-top: var(--spacing-sm);
-  min-height: 2.5rem; /* Consistent height for description */
 }
 
 /* Screen reader only class for accessibility */
