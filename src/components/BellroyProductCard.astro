@@ -22,6 +22,8 @@ interface Product {
   price: number;
   currency: string;
   imageSrc: string;
+  description: string;
+  hasRFID?: boolean;
   colors: Color[];
   isNew: boolean;
 }
@@ -40,6 +42,7 @@ const productData: ProductMap = {
     price: 119.00,
     currency: 'USD',
     imageSrc: '/images/products/slim-sleeve-black.png',
+    description: 'Billfold / 5 – 12+ cards, flat bills, coins',
     colors: [
       { 
         id: 'black', 
@@ -68,13 +71,15 @@ const productData: ProductMap = {
   'hide-and-seek': {
     id: 'hide-and-seek',
     name: 'Hide & Seek',
-    price: 149.00,
+    price: 129.00,
     currency: 'USD',
     imageSrc: '/images/products/hide-seek-blue.png',
+    description: 'Billfold / 5 – 12+ cards, flat bills, coins',
+    hasRFID: true,
     colors: [
       { 
-        id: 'blue', 
-        name: 'blue', 
+        id: 'navy', 
+        name: 'Navy', 
         hexCode: '#1A2351', 
         inStock: true,
         svgUrl: '/images/products/hide-seek-blue.png'
@@ -95,6 +100,7 @@ const productData: ProductMap = {
     price: 149.00,
     currency: 'USD',
     imageSrc: '/images/products/zip-wallet-black.png',
+    description: 'Phone wallet / 4 – 12 cards, bills, coins',
     colors: [
       { 
         id: 'black', 
@@ -152,8 +158,13 @@ const initialImageSrc = firstAvailableColor?.svgUrl || product?.imageSrc;
     <div class="product-card__loading">Loading product...</div>
   ) : (
     <div class="product-card">
-      <!-- Product image -->
+      <!-- Product image with hover button -->
       <div class="product-card__image-container">
+        <!-- Show Inside Button (only visible on hover) -->
+        <button class="product-card__show-inside-btn">
+          SHOW INSIDE <span class="plus-icon">+</span>
+        </button>
+        
         <a href={`/products/${product.id}`} class="product-card__image-link">
           <img 
             id={`product-image-${productId}`}
@@ -174,7 +185,7 @@ const initialImageSrc = firstAvailableColor?.svgUrl || product?.imageSrc;
       <div class="product-card__info">
         <h3 class="product-card__name">
           <a href={`/products/${product.id}`} class="product-card__name-link">
-            {product.name}
+            {product.name} {product.hasRFID && <span>– RFID safe</span>}
           </a>
         </h3>
         
@@ -203,6 +214,13 @@ const initialImageSrc = firstAvailableColor?.svgUrl || product?.imageSrc;
                 <span class="sr-only">{color.name}</span>
               </button>
             ))}
+          </div>
+        )}
+        
+        {/* Product description */}
+        {product.description && (
+          <div class="product-card__description">
+            {product.description}
           </div>
         )}
       </div>

@@ -1,8 +1,11 @@
 // src/scripts/colorSelector.js
-// This will be imported into the Layout.astro file to add color selection functionality
+// This file handles color selection functionality for the product cards
 
 // Initialize color selection functionality when DOM is loaded
-document.addEventListener('DOMContentLoaded', initColorSelectors);
+document.addEventListener('DOMContentLoaded', () => {
+  initColorSelectors();
+  initShowInsideButtons();
+});
 
 function initColorSelectors() {
   // Get all color option buttons
@@ -10,14 +13,14 @@ function initColorSelectors() {
   
   // Add click event to each color option
   colorButtons.forEach(btn => {
-    btn.addEventListener('click', handleColorSelection);
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      handleColorSelection(btn);
+    });
   });
 }
 
-function handleColorSelection(event) {
-  // Get the clicked button
-  const btn = event.currentTarget;
-  
+function handleColorSelection(btn) {
   // Get the product ID from the data attribute
   const productId = btn.getAttribute('data-product-id');
   if (!productId) return;
@@ -37,12 +40,46 @@ function handleColorSelection(event) {
   const productImage = document.getElementById(`product-image-${productId}`);
   if (!productImage) return;
   
-  // Update product image with SVG for the selected color
+  // Update product image with image for the selected color
   const svgUrl = btn.getAttribute('data-svg-url');
   if (svgUrl) {
-    productImage.src = svgUrl;
+    // Fade out, change src, fade in
+    productImage.style.opacity = '0';
+    
+    setTimeout(() => {
+      productImage.src = svgUrl;
+      productImage.style.opacity = '1';
+    }, 200);
   }
 }
 
-// Export the initialization function so it can be called from other files
-export { initColorSelectors };
+function initShowInsideButtons() {
+  // Get all "Show Inside" buttons
+  const showInsideButtons = document.querySelectorAll('.product-card__show-inside-btn');
+  
+  // Add click event to each button
+  showInsideButtons.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      // Toggle the button text and icon
+      const isExpanded = btn.getAttribute('aria-expanded') === 'true';
+      
+      if (isExpanded) {
+        btn.innerHTML = 'SHOW INSIDE <span class="plus-icon">+</span>';
+        btn.setAttribute('aria-expanded', 'false');
+      } else {
+        btn.innerHTML = 'HIDE INSIDE <span class="plus-icon">-</span>';
+        btn.setAttribute('aria-expanded', 'true');
+      }
+      
+      // In a real implementation, this would toggle showing the inside of the wallet
+      // For demo purposes, we're just changing the button
+      console.log('Toggle showing inside of wallet');
+    });
+  });
+}
+
+// Export the functions for testing
+export { initColorSelectors, handleColorSelection, initShowInsideButtons };
