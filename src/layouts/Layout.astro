@@ -49,7 +49,8 @@ const { title } = Astro.props;
 	:root {
 		--font-family-primary: 'Apercu', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 		--color-primary: #183431;
-		--color-light: #f9f9f9;
+		--color-light: #f5f5f5;
+		--color-page-bg: #ffffff;
 	}
 
 	* {
@@ -60,17 +61,19 @@ const { title } = Astro.props;
 
 	html {
 		font-family: var(--font-family-primary);
-		background-color: var(--color-light);
+		background-color: var(--color-page-bg);
 	}
 
 	body {
 		min-height: 100vh;
 		display: flex;
 		flex-direction: column;
+		background-color: var(--color-page-bg);
 	}
 	
 	main {
 		flex: 1;
+        background-color: var(--color-page-bg);
 	}
 	
 	/* Header styles */
