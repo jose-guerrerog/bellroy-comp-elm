@@ -1,6 +1,3 @@
-// src/scripts/colorSelector.js
-// This file handles color selection functionality for the product cards
-
 // Initialize color selection functionality when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
   initColorSelectors();
