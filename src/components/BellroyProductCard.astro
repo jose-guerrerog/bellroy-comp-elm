@@ -31,6 +31,12 @@ try {
 // Find the first available color (for pre-selecting)
 const firstAvailableColor = product?.colors?.find(color => color.inStock);
 const initialImageSrc = firstAvailableColor?.svgUrl || product?.imageSrc;
+
+// Prepare product data for Elm (only if we have a valid product)
+let productJson = "null";
+if (product) {
+  productJson = JSON.stringify(product);
+}
 ---
 
 <div id={`product-card-${productId}`} class={className || "product-card-container"}>
@@ -39,73 +45,112 @@ const initialImageSrc = firstAvailableColor?.svgUrl || product?.imageSrc;
   ) : !product ? (
     <div class="product-card__loading">Loading product...</div>
   ) : (
-    <div class="product-card">
-      <!-- Product image with hover button -->
-      <div class="product-card__image-container">
-        <!-- Show Inside Button (only visible on hover) -->
-        <button class="product-card__show-inside-btn">
-          SHOW INSIDE <span class="plus-icon">+</span>
-        </button>
-        
-        <a href={`/products/${product.id}`} class="product-card__image-link">
-          <img 
-            id={`product-image-${productId}`}
-            src={initialImageSrc}
-            alt={product.name} 
-            class="product-card__image"
-          />
+    <>
+      {/* Static server-rendered version (for SEO and no-JS fallback) */}
+      <div class="product-card no-js-version">
+        <div class="product-card__image-container">
+          <button class="product-card__show-inside-btn">
+            SHOW INSIDE <span class="plus-icon">+</span>
+          </button>
           
-          {product.isNew && (
-            <div class="product-card__badge product-card__badge--new">
-              New
-            </div>
-          )}
-        </a>
-      </div>
-      
-      <!-- Product info -->
-      <div class="product-card__info">
-        <h3 class="product-card__name">
-          <a href={`/products/${product.id}`} class="product-card__name-link">
-            {product.name} {product.hasRFID && <span>– RFID safe</span>}
+          <a href={`/products/${product.id}`} class="product-card__image-link">
+            <img 
+              src={initialImageSrc}
+              alt={product.name} 
+              class="product-card__image"
+            />
+            
+            {product.isNew && (
+              <div class="product-card__badge product-card__badge--new">
+                New
+              </div>
+            )}
           </a>
-        </h3>
-        
-        <div class="product-card__price-container">
-          <div class="product-card__price">{formatPrice(product.price, product.currency)}</div>
         </div>
         
-        {/* Color selection row */}
-        {product.colors && product.colors.length > 0 && (
-          <div class="product-card__colors">
-            {product.colors.map(color => (
-              <button 
-                class={`product-card__color-option ${
-                  !color.inStock ? "product-card__color-option--out-of-stock" : ""
-                } ${
-                  color.id === firstAvailableColor?.id ? "product-card__color-option--selected" : ""
-                }`}
-                style={`background-color: ${color.hexCode};`}
-                title={color.name}
-                aria-label={`${color.name} color${!color.inStock ? ' (out of stock)' : ''}`}
-                disabled={!color.inStock}
-                data-color-id={color.id}
-                data-svg-url={color.svgUrl}
-                data-product-id={productId}
-              >
-                <span class="sr-only">{color.name}</span>
-              </button>
-            ))}
+        <div class="product-card__info">
+          <h3 class="product-card__name">
+            <a href={`/products/${product.id}`} class="product-card__name-link">
+              {product.name} {product.hasRFID && <span>– RFID safe</span>}
+            </a>
+          </h3>
+          
+          <div class="product-card__price-container">
+            <div class="product-card__price">{formatPrice(product.price, product.currency)}</div>
           </div>
-        )}
-        
-        {/* Product description */}
-        {product.description && (
-          <div class="product-card__description">
-            {product.description}
-          </div>
-        )}
+          
+          {product.colors && product.colors.length > 0 && (
+            <div class="product-card__colors">
+              {product.colors.map(color => (
+                <button 
+                  class={`product-card__color-option ${
+                    !color.inStock ? "product-card__color-option--out-of-stock" : ""
+                  } ${
+                    color.id === firstAvailableColor?.id ? "product-card__color-option--selected" : ""
+                  }`}
+                  style={`background-color: ${color.hexCode};`}
+                  title={color.name}
+                  aria-label={`${color.name} color${!color.inStock ? ' (out of stock)' : ''}`}
+                  disabled={!color.inStock}
+                  data-color-id={color.id}
+                  data-svg-url={color.svgUrl}
+                  data-product-id={productId}
+                >
+                  <span class="sr-only">{color.name}</span>
+                </button>
+              ))}
+            </div>
+          )}
+          
+          {product.description && (
+            <div class="product-card__description">
+              {product.description}
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+      
+      {/* Elm version (takes over with JavaScript enabled) */}
+      <div id={`elm-product-card-${productId}`} class="elm-version"></div>
+    </>
   )}
 </div>
+
+<script src="../ProductCard.js"></script>
+<script define:vars={{ productId, productJson }}>
+// Only run if we have a valid product
+if (productJson !== "null") {
+  // Get elements
+  const elmContainer = document.getElementById(`elm-product-card-${productId}`);
+  const staticCard = document.querySelector(`#product-card-${productId} .no-js-version`);
+  
+  // Initialize Elm when DOM is loaded
+  document.addEventListener('DOMContentLoaded', () => {
+    if (elmContainer && window.Elm && window.Elm.ProductCard) {
+      // Parse the product data
+      const product = JSON.parse(productJson);
+      
+      // Initialize Elm app
+      const app = window.Elm.ProductCard.init({
+        node: elmContainer,
+        flags: { 
+          product: product
+        }
+      });
+      
+      // Hide the static version once Elm is initialized
+      if (staticCard) {
+        staticCard.style.display = 'none';
+      }
+      
+      // Set up click handler for "show inside" button if needed
+      const showInsideBtn = elmContainer.querySelector('.product-card__show-inside-btn');
+      if (showInsideBtn && app.ports && app.ports.toggleInsideView) {
+        showInsideBtn.addEventListener('click', () => {
+          app.ports.toggleInsideView.send(null);
+        });
+      }
+    }
+  });
+}
+</script>
